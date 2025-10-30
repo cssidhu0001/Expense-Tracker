@@ -1,28 +1,36 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState } from "react";
 
-// Context create
 export const ExpenseContext = createContext();
 
-const ExpenseProvider = ({ children }) => {
-  const [expenses, setExpenses] = useState(() => {
-    const saved = localStorage.getItem("expenses");
-    return saved ? JSON.parse(saved) : [];
-  });
+export const ExpenseProvider = ({ children }) => {
+  const [budget, setBudget] = useState(null);
+  const [expenses, setExpenses] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem("expenses", JSON.stringify(expenses));
-  }, [expenses]);
+  const addExpense = (expense) => {
+    setExpenses([...expenses, expense]);
+  };
 
-  const addExpense = (expense) => setExpenses([...expenses, expense]);
-  const deleteExpense = (id) => setExpenses(expenses.filter((exp) => exp.id !== id));
-  const editExpense = (updatedExpense) =>
-    setExpenses(expenses.map((exp) => (exp.id === updatedExpense.id ? updatedExpense : exp)));
+  const deleteExpense = (id) => {
+    setExpenses(expenses.filter((e) => e.id !== id));
+  };
+
+  const getRemainingBudget = () => {
+    const spent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
+    return budget ? budget - spent : 0;
+  };
 
   return (
-    <ExpenseContext.Provider value={{ expenses, addExpense, deleteExpense, editExpense }}>
+    <ExpenseContext.Provider
+      value={{
+        budget,
+        setBudget,
+        expenses,
+        addExpense,
+        deleteExpense,
+        getRemainingBudget,
+      }}
+    >
       {children}
     </ExpenseContext.Provider>
   );
 };
-
-export default ExpenseProvider; // ✅ Default export

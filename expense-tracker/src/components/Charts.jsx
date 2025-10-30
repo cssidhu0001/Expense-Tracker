@@ -4,40 +4,45 @@ import { ExpenseContext } from "../context/ExpenseContext";
 const Charts = () => {
   const { expenses } = useContext(ExpenseContext);
 
-  // 🧮 Category-wise total calculation
+  const totalExpense = expenses.reduce((sum, e) => sum + e.amount, 0);
   const categoryTotals = expenses.reduce((acc, curr) => {
     acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
     return acc;
   }, {});
 
-  // 💰 Format as Indian Rupee
   const formatCurrency = (amount) =>
     `₹${amount.toLocaleString("en-IN", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
 
+  if (expenses.length === 0)
+    return <p className="text-gray-500 text-center">No data to show progress</p>;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {Object.keys(categoryTotals).length === 0 ? (
-        <p className="text-center text-gray-500 col-span-full">
-          No data to show chart
-        </p>
-      ) : (
-        Object.entries(categoryTotals).map(([category, total]) => (
-          <div
-            key={category}
-            className="bg-gradient-to-r from-blue-100 to-indigo-100 p-5 rounded-xl shadow-md hover:shadow-lg transition text-center"
-          >
-            <h3 className="font-semibold text-gray-700 text-lg mb-1">
-              {category}
-            </h3>
-            <p className="text-2xl font-bold text-blue-700">
-              {formatCurrency(total)}
-            </p>
+    <div className="bg-white p-5 rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold mb-4 text-center">
+        Category-wise Progress
+      </h2>
+
+      {Object.entries(categoryTotals).map(([category, total]) => {
+        const percent = ((total / totalExpense) * 100).toFixed(1);
+        return (
+          <div key={category} className="mb-4">
+            <div className="flex justify-between mb-1">
+              <span>{category}</span>
+              <span>{percent}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div
+                className="bg-blue-500 h-3 rounded-full"
+                style={{ width: `${percent}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-600 mt-1">{formatCurrency(total)}</p>
           </div>
-        ))
-      )}
+        );
+      })}
     </div>
   );
 };
