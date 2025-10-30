@@ -18,7 +18,6 @@ export const ExpenseProvider = ({ children }) => {
     const spent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
     return budget ? budget - spent : 0;
   };
-
   return (
     <ExpenseContext.Provider
       value={{
@@ -34,3 +33,4 @@ export const ExpenseProvider = ({ children }) => {
     </ExpenseContext.Provider>
   );
 };
+
